@@ -14,11 +14,24 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::paginate(15); // todo:12_ページネーションを実行するためのデータ取得
+        // todo: 13_カテゴリーの絞り込みを行う
+        if ($request->category !== null) { // todo: 13_リクエストにカテゴリーが含まれていたら ⇒ つまり、viewファイル側からカテゴリーidのデータが送られてきたら。
+            $products = Product::where('category_id', $request->category)->paginate(15); // カテゴリーIDをwhere文に組み込む
+            $total_count = Product::where('category_id', $request->category)->count();   // 全体の件数も取得しておく（表示用）
+            $category = Category::find($request->category);
+        } else {                           // todo: 13_リクエストにカテゴリーが含まれていなければ ⇒ つまり、何もカテゴリーが絞り込まれていなければ。
+            $products = Product::paginate(15);
+            $total_count = "";
+            $category = null;
+        }
 
-        return view('products.index', compact('products'));
+        $categories = Category::all(); // todo: 13_カテゴリーのデータをすべて取得してビューに送る
+
+        $major_category_names = Category::pluck('major_category_name')->unique(); // todo: 13_全カテゴリのデータからmajor_category_nameのカラムのみを取得し、重複を削除
+
+        return view('products.index', compact('products', 'category', 'categories', 'major_category_names', 'total_count'));
     }
 
     public function favorite(Product $product)
