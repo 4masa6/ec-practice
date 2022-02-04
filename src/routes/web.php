@@ -15,6 +15,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// MyPageに関するルーティング
+Route::get('users/mypage', 'UserController@mypage')->name('mypage');
+Route::get('users/mypage/edit', 'UserController@edit')->name('mypage.edit');
+Route::get('users/mypage/address/edit', 'UserController@edit_address')->name('mypage.edit_address');
+Route::put('users/mypage', 'UserController@update')->name('mypage.update');
+
 Route::post('products/{product}/reviews', 'ReviewController@store');
 
 // お気に入り登録を行うアクションへのルーティング
