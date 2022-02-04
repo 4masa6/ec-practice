@@ -10,12 +10,6 @@ use Illuminate\Http\Request;
 class ReviewController extends Controller
 {
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Product $product, Request $request)
     {
         $review = new Review(); // todo: Reviewモデルのインスタンス作成

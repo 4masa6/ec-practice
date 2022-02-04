@@ -9,11 +9,7 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index(Request $request)
     {
         // todo: 13_カテゴリーの絞り込みを行う
@@ -47,11 +43,6 @@ class ProductController extends Controller
         return redirect()->route('products.show', $product);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         $categories = Category::all();
@@ -59,12 +50,6 @@ class ProductController extends Controller
         return view('products.create', compact('categories'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $product = new Product();
@@ -77,12 +62,6 @@ class ProductController extends Controller
         return redirect()->route('products.show', ['id' => $product->id]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response|\Illuminate\View\View
-     */
     public function show(Product $product)
     {
         $reviews = $product->reviews()->get(); // todo: $productからリレーションで紐付いているreviewsを取得する
@@ -90,12 +69,6 @@ class ProductController extends Controller
         return view('products.show', compact('product', 'reviews')); // todo: viewファイルに$productと$reviewsを渡している
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Product $product)
     {
         $categories = Category::all();
@@ -103,13 +76,6 @@ class ProductController extends Controller
         return view('products.edit', compact('product', 'categories'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, Product $product)
     {
         $product->name = $request->input('name');
@@ -121,12 +87,6 @@ class ProductController extends Controller
         return redirect()->route('products.show', ['id' => $product->id]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Product $product)
     {
         $product->delete();
