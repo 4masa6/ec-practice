@@ -15,6 +15,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('users/carts', 'CartController@index')->name('carts.index');
+Route::post('users/carts', 'CartController@store')->name('carts.store');
+
 // MyPageに関するルーティング
 Route::get('users/mypage', 'UserController@mypage')->name('mypage');
 Route::get('users/mypage/edit', 'UserController@edit')->name('mypage.edit');
