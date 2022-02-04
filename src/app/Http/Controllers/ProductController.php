@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Product;
 use App\Category;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -18,6 +19,19 @@ class ProductController extends Controller
         $products = Product::all();
 
         return view('products.index', compact('products'));
+    }
+
+    public function favorite(Product $product)
+    {
+        $user = Auth::user(); // todo: ログインユーザーを取得
+
+        if ($user->hasFavorited($product)) { // ユーザーが商品をお気に入りに登録していたら
+            $user->unfavorite($product);     // お気に入りをはずす
+        } else {                             // ユーザーが商品をお気に入りに登録していなければ
+            $user->favorite($product);       // お気に入りをする
+        }
+
+        return redirect()->route('products.show', $product);
     }
 
     /**
