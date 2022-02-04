@@ -54,11 +54,13 @@ class ProductController extends Controller
      * Display the specified resource.
      *
      * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response|\Illuminate\View\View
      */
     public function show(Product $product)
     {
-        return view('products.show', compact('product'));
+        $reviews = $product->reviews()->get(); // todo: $productからリレーションで紐付いているreviewsを取得する
+
+        return view('products.show', compact('product', 'reviews')); // todo: viewファイルに$productと$reviewsを渡している
     }
 
     /**

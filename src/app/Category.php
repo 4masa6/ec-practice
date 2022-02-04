@@ -8,6 +8,6 @@ class Category extends Model
 {
     public function products()
     {
-        return $this->hasMany('App\Product');
+        return $this->hasMany('App\Product'); // todo: Category : Product = 1 : 多
     }
 }
