@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -57,14 +58,23 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
-        if ($request->input('password') == $request->input('password_confirmation')) { // todo: 16_POSTされてきたパスワードと確認パスワードが同じなら更新
+        if ($request->input('password') == $request->input('password_confirmation')) { // 16_POSTされてきたパスワードと確認パスワードが同じなら更新
             $user->password = bcrypt($request->input('password'));
             $user->update();
-        } else { // todo: 16_POSTされてきたパスワードと確認パスワードが異なればパスワード編集画面へリダイレクト
+        } else { // 16_POSTされてきたパスワードと確認パスワードが異なればパスワード編集画面へリダイレクト
             return redirect()->route('mypage.edit_password');
         }
 
         return redirect()->route('mypage');
+    }
+
+    public function favorite()
+    {
+        $user = Auth::user();
+
+        $favorites = $user->favorites(Product::class)->get(); // todo: 17_ユーザーがお気に入りした商品を取得（laravel-favoriteの機能）
+
+        return view('users.favorite', compact('favorites'));
     }
 
 }
