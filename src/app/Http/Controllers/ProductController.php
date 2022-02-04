@@ -16,7 +16,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::all();
+        $products = Product::paginate(15); // todo:12_ページネーションを実行するためのデータ取得
 
         return view('products.index', compact('products'));
     }
