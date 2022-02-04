@@ -20,7 +20,7 @@ class CartController extends Controller
         $total = 0;
 
         foreach ($cart as $c) {
-            $total += $c->qty * $c->price;
+            $total += $c->qty * $c->price; // qty => 購入数 トータル金額を計算
         }
 
         return view('carts.index', compact('cart', 'total'));
