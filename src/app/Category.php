@@ -10,4 +10,9 @@ class Category extends Model
     {
         return $this->hasMany('App\Product'); // todo: Category : Product = 1 : 多
     }
+
+    public function major_category()
+    {
+        return $this->belongsTo('App\MajorCategory');
+    }
 }
