@@ -11,6 +11,7 @@ $factory->define(Review::class, function (Faker $faker) {
     return [
         'content' => $faker->realText($maxNbChars = 50, $indexSize = 2),
         'product_id' => $faker->numberBetween(1, 30),
-        'user_id' => $faker->numberBetween(1, 70),
+        'user_id' => $faker->numberBetween(1, 20),
+        'score' => $faker->numberBetween(1, 5),
     ];
 });
