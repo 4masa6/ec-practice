@@ -68,6 +68,12 @@ class ProductController extends Controller
         $product->description = $request->input('description');
         $product->price = $request->input('price');
         $product->category_id = $request->input('category_id');
+        // todo: 64_おすすめフラグをONにする
+        if ($request->input('recommend') == 'on') {
+            $product->recommend_flag = true;
+        } else {
+            $product->recommend_flag = false;
+        }
         $product->save();
 
         return redirect()->route('dashboard.products.index');
@@ -99,6 +105,11 @@ class ProductController extends Controller
         $product->description = $request->input('description');
         $product->price = $request->input('price');
         $product->category_id = $request->input('category_id');
+        if ($request->input('recommend') == 'on') {
+            $product->recommend_flag = true;
+        } else {
+            $product->recommend_flag = false;
+        }
         $product->update();
 
         return redirect()->route('dashboard.products.index');
