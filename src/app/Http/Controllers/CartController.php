@@ -74,14 +74,42 @@ class CartController extends Controller
      */
     public function destroy(Request $request)
     {
-        $user_shoppingcarts = DB::table('shoppingcart')->where('instance', Auth::user()->id)->get(); // todo: 19_現在までのユーザーが注文したカートを取得
+        $user_shoppingcarts = DB::table('shoppingcart')->get(); // todo: 65_すべてのユーザーが現在まで注文したカートを取得
+        $number = DB::table('shoppingcart')->where('instance', Auth::user()->id)->count(); // todo: 65_ログインユーザーが現在まで注文したカートの数を取得
 
-        $count = $user_shoppingcarts->count(); // todo: 19_現在までのユーザーが注文したカートの数を取得
-        $count += 1; // todo: 19_新しく追加するカートのIDを作成
+        $count = $user_shoppingcarts->count(); // todo: 65_すべてのユーザーが現在まで注文したカートの数
 
-        Cart::instance(Auth::user()->id)->store($count); // todo: 19_カートをDBに保存
+        $count += 1;
+        $number += 1;
+        $cart = Cart::instance(Auth::user()->id)->content(); // todo: 65_ログインユーザーの今回購入するカート
 
-        DB::table('shoppingcart')->where('instance', Auth::user()->id)->where('number', null)->update(['number' => $count, 'buy_flag' => true]); // todo: 19_購入処理
+        $price_total = 0;
+        $qty_total = 0;
+
+        foreach ($cart as $c) {
+            if ($c->options->carriage) { // todo: 65_オプションで送料があれば
+                $price_total += ($c->qty * ($c->price + 800)); // 送料込みの値段
+            } else {
+                $price_total += $c->qty * $c->price;
+            }
+            $qty_total += $c->qty; // todo: 65_ qty：購入個数
+        }
+
+        Cart::instance(Auth::user()->id)->store($count); // todo: 65_カートをDBのshoppingcartテーブルに保存
+
+        // todo: 65_購入処理（shoppingcartテーブルを更新）
+        DB::table('shoppingcart')->where('instance', Auth::user()->id)
+            ->where('number', null)
+            ->update(
+                [
+                    'code' => substr(str_shuffle('1234567890abcdefghijklmnopqrstuvwxyz'), 0, 10),
+                    'number' => $number,
+                    'price_total' => $price_total,
+                    'qty' => $qty_total,
+                    'buy_flag' => true,
+                    'updated_at' => date("Y/m/d H:i:s")
+                ]
+            );
 
         Cart::instance(Auth::user()->id)->destroy();
 
