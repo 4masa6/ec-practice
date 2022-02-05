@@ -17,6 +17,12 @@ class RedirectIfAuthenticated
      */
     public function handle($request, Closure $next, $guard = null)
     {
+        $redirect_url = '/';
+
+        if ($guard == 'admins') { // todo: 56_管理者の場合、管理画面にリダイレクトする
+            $redirect_url = '/dashboard';
+        }
+
         if (Auth::guard($guard)->check()) {
             return redirect('/home');
         }

@@ -41,6 +41,12 @@ return [
             'provider' => 'users',
         ],
 
+        /* todo: 56_新しくadminsという認証を追加 */
+        'admins' => [
+            'driver' => 'session', // sessionでログイン状態を保持
+            'provider' => 'admins', // 認証に使用する確認方法としてadminsを指定
+        ],
+
         'api' => [
             'driver' => 'token',
             'provider' => 'users',
@@ -70,6 +76,12 @@ return [
             'driver' => 'eloquent',
             'model' => App\User::class,
         ],
+
+        /* todo: 56_adminsというproviderを追加 */
+        'admins' => [
+            'driver' => 'eloquent', // 認証の確認方法にeloquentを指定。DBに保存されているデータをもとに確認
+            'model' => App\Admin::class, // DBのどのデータを使用するか
+        ]
 
         // 'users' => [
         //     'driver' => 'database',
