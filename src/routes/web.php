@@ -17,6 +17,7 @@ Route::get('/', function () {
 
 Route::get('users/carts', 'CartController@index')->name('carts.index');
 Route::post('users/carts', 'CartController@store')->name('carts.store');
+Route::delete('users/carts', 'CartController@destroy')->name('carts.destroy');
 
 // MyPageに関するルーティング
 Route::get('users/mypage', 'UserController@mypage')->name('mypage');
