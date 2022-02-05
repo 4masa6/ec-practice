@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\Category;
+use App\MajorCategory;
 
 class CategoriesTableSeeder extends Seeder
 {
@@ -11,9 +12,7 @@ class CategoriesTableSeeder extends Seeder
      * @return void
      */
     public function run() {
-        $major_category_names = [
-            '本', 'コンピュータ', 'ディスプレイ'
-        ];
+        $major_categories = MajorCategory::pluck('name', 'id'); // todo: 60_pluck：keyが第二引数、valueが第一引数のコレクションが作成できる
 
         $book_categories = [
             'ビジネス', '文学・評論', '人文・思想', 'スポーツ',
@@ -29,14 +28,15 @@ class CategoriesTableSeeder extends Seeder
             '19~20インチ', 'デスクトップPC', 'タブレット'
         ];
 
-        foreach ($major_category_names as $major_category_name) {
+        foreach ($major_categories as $major_category_id => $major_category_name) {
             if ($major_category_name == '本') {
                 foreach ($book_categories as $book_category) {
                     Category::create(
                         [
                             'name'                => $book_category,
                             'description'         => $book_category,
-                            'major_category_name' => $major_category_name
+                            'major_category_name' => $major_category_name,
+                            'major_category_id'   => $major_category_id
                         ]
                     );
                 }
@@ -48,7 +48,8 @@ class CategoriesTableSeeder extends Seeder
                         [
                             'name'                => $computer_category,
                             'description'         => $computer_category,
-                            'major_category_name' => $major_category_name
+                            'major_category_name' => $major_category_name,
+                            'major_category_id'   => $major_category_id
                         ]
                     );
                 }
