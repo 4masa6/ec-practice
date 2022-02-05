@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "94204d18c9c2e077ec01e825ca1285e9",
+    "content-hash": "0fcde6d13bd44da656901e3053927a04",
     "packages": [
         {
             "name": "bumbummen99/shoppingcart",
