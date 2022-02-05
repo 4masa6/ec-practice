@@ -10,7 +10,6 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-//        dd($request);
         if ($request->keyword !== null) { // 検索キーワードが設定されていれば
             $keyword = rtrim($request->keyword); // rtrim()：文字列の最後から空白を取り除く
             if (is_int($request->keyword)) { // キーワードが数字であれば
