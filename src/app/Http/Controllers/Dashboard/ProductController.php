@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Product;
 use App\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 
 class ProductController extends Controller
@@ -76,7 +77,15 @@ class ProductController extends Controller
             $product->recommend_flag = false;
         }
 
-        // todo: 67_送料フラグをONにする
+        // todo: 68_アップロードされたファイルをローカルに保存する
+        if ($request->file('image') !== null) { // POSTにimageのファイルが存在すれば（$request->file()でアップロードファイルを取得）
+            $image = $request->file('image')->store('public/products'); // storeメソッドでファイルシステムで設定したルートディレクトリからの相対位置で、どこに保存するかを指定する
+            $product->image = basename($image); // basename：パスの最後の部分を返す basename('/foo/bar/baz') => 'baz'
+        } else {
+            $product->image = '';
+        }
+
+        // 67_送料フラグをONにする
         if ($request->input('carriage') == 'on') {
             $product->carriage_flag = true;
         } else {
@@ -120,7 +129,17 @@ class ProductController extends Controller
             $product->recommend_flag = false;
         }
 
-        // todo: 67_送料フラグをONにする
+        //
+        if ($request->hasFile('image')) { // リクエストにファイルが存在していれば
+            $image = $request->file('image')->store('public/products');
+            $product->image = basename($image);
+        } elseif (isset($product->image)) { // 商品画像が存在してれば
+            // do nothing
+        } else {
+            $product->image = '';
+        }
+
+        // 67_送料フラグをONにする
         if ($request->input('carriage') == 'on') {
             $product->carriage_flag = true;
         } else {
