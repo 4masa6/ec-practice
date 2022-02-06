@@ -15,12 +15,16 @@ class CartController extends Controller
      */
     public function index()
     {
-        $cart = Cart::instance(Auth::user()->id)->content(); // todo: 19_ユーザーIDからこれまで追加したカートの中身を取得
+        $cart = Cart::instance(Auth::user()->id)->content(); // 19_ユーザーIDからこれまで追加したカートの中身を取得
 
         $total = 0;
 
         foreach ($cart as $c) {
-            $total += $c->qty * $c->price; // qty => 購入数 トータル金額を計算
+            if($c->options->carriage) { // todo: 67_送料フラグがONであれば
+                $total += ($c->qty * ($c->price + env('CARRIAGE'))); // 送料をプラス
+            } else {
+                $total += $c->qty * $c->price;
+            }
         }
 
         return view('carts.index', compact('cart', 'total'));
@@ -38,6 +42,9 @@ class CartController extends Controller
                 'qty' => $request->qty,
                 'price' => $request->price,
                 'weight' => $request->weight,
+                'options' => [
+                    'carriage' => $request->carriage
+                ]
             ]
         );
 
