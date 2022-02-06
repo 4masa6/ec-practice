@@ -118,6 +118,20 @@ class CartController extends Controller
                 ]
             );
 
+        $pay_jp_secret = env('PAYJP_SECRET_KEY');
+        \Payjp\Payjp::setApiKey($pay_jp_secret);
+
+        $user = Auth::user();
+
+        // todo: 73_決済処理
+        $res = \Payjp\Charge::create(
+            [
+                "customer" => $user->token,
+                "amount" => $price_total,
+                "currency" => 'jpy'
+            ]
+        );
+
         Cart::instance(Auth::user()->id)->destroy();
 
         return redirect()->route('carts.index');
