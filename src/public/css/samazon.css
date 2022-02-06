@@ -241,3 +241,23 @@ label {
     border-radius: 2px;
     background-color: #d94b0e;
 }
+
+.samazon-button {
+    border-radius: 2px;
+    border: solid 1px #b2b2b2;
+    background-color: #ffffff;
+}
+
+.flash-success-font {
+    font-weight: bold;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #0dab8f;
+}
+
+.flash-success-bg {
+    border-radius: 2px;
+    background-color: #ceeee8;
+}
