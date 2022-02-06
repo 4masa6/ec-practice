@@ -71,6 +71,9 @@ class ShoppingCart extends Model
         return $billings;
     }
 
+    /*
+     * 注文番号で購入履歴を取得する
+     */
     public static function getOrders($code)
     {
         $shoppingcarts = DB::table('shoppingcart')->where("code", 'like', "%{$code}%")->get();
@@ -80,6 +83,28 @@ class ShoppingCart extends Model
         foreach($shoppingcarts as $order) {
             $orders[] = [
                 'created_at' => $order->created_at,
+                'total' => $order->price_total,
+                'user_name' => User::find($order->instance)->name,
+                'code' => $order->code
+            ];
+        }
+
+        return $orders;
+    }
+
+    /*
+     * 現在のユーザーの購入履歴を取得する
+     */
+    public static function getCurrentUserOrders($user_id)
+    {
+        $shoppingcarts = DB::table('shoppingcart')->where("instance", "{$user_id}")->get();
+
+        $orders = [];
+
+        foreach($shoppingcarts as $order) {
+            $orders[] = [
+                'id' => $order->number,
+                'created_at' => $order->updated_at,
                 'total' => $order->price_total,
                 'user_name' => User::find($order->instance)->name,
                 'code' => $order->code

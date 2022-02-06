@@ -6,6 +6,10 @@ use App\User;
 use App\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\ShoppingCart;
+use Gloudemans\Shoppingcart\Facades\Cart;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserController extends Controller
 {
@@ -92,6 +96,60 @@ class UserController extends Controller
         Auth::logout();
 
         return redirect('/');
+    }
+
+    /*
+     * 購入履歴の一覧を表示
+     */
+    public function cart_history_index(Request $request)
+    {
+        /*
+         *
+         */
+
+        $page = $request->page != null ? $request->page : 1;
+        $user_id = Auth::user()->id;
+        $billings = ShoppingCart::getCurrentUserOrders($user_id); // shoppingcartテーブルから現在のユーザーの購入情報を取得
+        $total = count($billings);
+        $billings = new LengthAwarePaginator(array_slice($billings, ($page - 1) * 15, 15), $total, 15, $page, array('path' => $request->url())); // 15件でページングするための処理
+        // [表示するコレクション] = new LengthAwarePaginator([表示するコレクション], [コレクションの大きさ], [1ページ当たりの表示数], [現在のページ番号], [オプション(ここでは"ページの遷移先パス")]);
+
+        return view('users.cart_history_index', compact('billings', 'total'));
+    }
+
+    /*
+     * 購入履歴の詳細表示
+     */
+    public function cart_history_show(Request $request)
+    {
+        $num = $request->num; // 注文の番号
+
+        $user_id = Auth::user()->id;
+
+        $cart_info = DB::table('shoppingcart')->where('instance', $user_id)->where('number', $num)->get()->first();
+
+        Cart::instance($user_id)->restore($num);
+
+        $cart_contents = Cart::content();
+
+        Cart::instance($user_id)->store($num);
+
+        Cart::destroy();
+
+        DB::table('shoppingcart')->where('instance', $user_id)
+            ->where('number', null)
+            ->update(
+                [
+                    'code' => $cart_info->code,
+                    'number' => $num,
+                    'price_total' => $cart_info->price_total,
+                    'qty' => $cart_info->qty,
+                    'buy_flag' => $cart_info->buy_flag,
+                    'updated_at' => $cart_info->updated_at
+                ]
+            );
+
+        return view('users.cart_history_show', compact('cart_contents', 'cart_info'));
     }
 
 }
