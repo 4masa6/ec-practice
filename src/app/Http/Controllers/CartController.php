@@ -13,14 +13,13 @@ class CartController extends Controller
     /*
      * 現在カートに入っている商品一覧とこれまで購入した商品履歴を表示する
      */
-    public function index()
-    {
+    public function index() {
         $cart = Cart::instance(Auth::user()->id)->content(); // 19_ユーザーIDからこれまで追加したカートの中身を取得
 
         $total = 0;
 
         foreach ($cart as $c) {
-            if($c->options->carriage) { // todo: 67_送料フラグがONであれば
+            if ($c->options->carriage) { // todo: 67_送料フラグがONであれば
                 $total += ($c->qty * ($c->price + env('CARRIAGE'))); // 送料をプラス
             } else {
                 $total += $c->qty * $c->price;
@@ -33,15 +32,14 @@ class CartController extends Controller
     /**
      * カートに商品を追加する
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         Cart::instance(Auth::user()->id)->add(
             [
-                'id' => $request->id,
-                'name' => $request->name,
-                'qty' => $request->qty,
-                'price' => $request->price,
-                'weight' => $request->weight,
+                'id'      => $request->id,
+                'name'    => $request->name,
+                'qty'     => $request->qty,
+                'price'   => $request->price,
+                'weight'  => $request->weight,
                 'options' => [
                     'carriage' => $request->carriage
                 ]
@@ -54,8 +52,7 @@ class CartController extends Controller
     /*
      * 過去の商品履歴（カートの履歴）を表示できるようにする
      */
-    public function show($id)
-    {
+    public function show($id) {
         // shoppingcartテーブルのモデルを作成していないため、クエリビルダでデータを取得
         $cart = DB::table('shoppingcart')->where('instance', Auth::user()->id)->where('identifier', $count)->get();
 
@@ -65,8 +62,7 @@ class CartController extends Controller
     /*
      * カートの中身を更新する処理
      */
-    public function update(Request $request)
-    {
+    public function update(Request $request) {
         if ($request->input('delete')) { // 削除のパラメーターなら削除する
             Cart::instance(Auth::user()->id)->remove($request->input('id')); // todo: 19_shoppingcartでは、Cart::remove()に削除したいカート内の商品IDを渡すことで、カートから削除することができる
         } else {
@@ -79,19 +75,18 @@ class CartController extends Controller
     /*
      * カートの商品を購入する処理
      */
-    public function destroy(Request $request)
-    {
+    public function destroy(Request $request) {
         $user_shoppingcarts = DB::table('shoppingcart')->get(); // todo: 65_すべてのユーザーが現在まで注文したカートを取得
-        $number = DB::table('shoppingcart')->where('instance', Auth::user()->id)->count(); // todo: 65_ログインユーザーが現在まで注文したカートの数を取得
+        $number             = DB::table('shoppingcart')->where('instance', Auth::user()->id)->count(); // todo: 65_ログインユーザーが現在まで注文したカートの数を取得
 
         $count = $user_shoppingcarts->count(); // todo: 65_すべてのユーザーが現在まで注文したカートの数
 
-        $count += 1;
+        $count  += 1;
         $number += 1;
-        $cart = Cart::instance(Auth::user()->id)->content(); // todo: 65_ログインユーザーの今回購入するカート
+        $cart   = Cart::instance(Auth::user()->id)->content(); // todo: 65_ログインユーザーの今回購入するカート
 
-        $price_total = 0;
-        $qty_total = 0;
+        $price_total = 0; // 送料込みの値段
+        $qty_total   = 0; // 購入個数トータル
 
         foreach ($cart as $c) {
             if ($c->options->carriage) { // todo: 65_オプションで送料があれば
@@ -109,12 +104,12 @@ class CartController extends Controller
             ->where('number', null)
             ->update(
                 [
-                    'code' => substr(str_shuffle('1234567890abcdefghijklmnopqrstuvwxyz'), 0, 10),
-                    'number' => $number,
+                    'code'        => substr(str_shuffle('1234567890abcdefghijklmnopqrstuvwxyz'), 0, 10),
+                    'number'      => $number,
                     'price_total' => $price_total,
-                    'qty' => $qty_total,
-                    'buy_flag' => true,
-                    'updated_at' => date("Y/m/d H:i:s")
+                    'qty'         => $qty_total,
+                    'buy_flag'    => true,
+                    'updated_at'  => date("Y/m/d H:i:s")
                 ]
             );
 
@@ -127,7 +122,7 @@ class CartController extends Controller
         $res = \Payjp\Charge::create(
             [
                 "customer" => $user->token,
-                "amount" => $price_total,
+                "amount"   => $price_total,
                 "currency" => 'jpy'
             ]
         );
