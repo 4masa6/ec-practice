@@ -10,39 +10,38 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
 
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
 
         // todo: 14_ソートを行う処理を記述
         $sort_query = [];
-        $sorted = "";
+        $sorted     = "";
 
         if ($request->direction !== null) {
             $sort_query = $request->direction;
-            $sorted = $request->sort;
+            $sorted     = $request->sort;
         } else if ($request->sort !== null) {
-            $slices = explode(' ', $request->sort);
+            $slices                 = explode(' ', $request->sort);
             $sort_query[$slices[0]] = $slices[1];
-            $sorted = $request->sort;
+            $sorted                 = $request->sort;
         }
 
         // todo: 13_カテゴリーの絞り込みを行う
         if ($request->category !== null) { // 13_リクエストにカテゴリーが含まれていたら ⇒ つまり、viewファイル側からカテゴリーidのデータが送られてきたら。
-            $products = Product::where('category_id', $request->category)->sortable($sort_query)->paginate(15); // todo: 14_ソートのクエリを追加
+            $products    = Product::where('category_id', $request->category)->sortable($sort_query)->paginate(15); // todo: 14_ソートのクエリを追加
             $total_count = Product::where('category_id', $request->category)->count();   // 全体の件数も取得しておく（表示用）
-            $category = Category::find($request->category);
+            $category    = Category::find($request->category);
         } else {                           // 13_リクエストにカテゴリーが含まれていなければ ⇒ つまり、何もカテゴリーが絞り込まれていなければ。
-            $products = Product::sortable($sort_query)->paginate(15); // todo: 14_ソートのクエリを追加
+            $products    = Product::sortable($sort_query)->paginate(15); // todo: 14_ソートのクエリを追加
             $total_count = "";
-            $category = null;
+            $category    = null;
         }
 
         // todo: 14_ソートの選択肢の配列を用意（view側で使用）
         $sort = [
-            '並び替え' => '',
-            '価格の安い順' => 'price asc',
-            '価格の高い順' => 'price desc',
-            '出品の古い順' => 'updated_at asc',
+            '並び替え'    => '',
+            '価格の安い順'  => 'price asc',
+            '価格の高い順'  => 'price desc',
+            '出品の古い順'  => 'updated_at asc',
             '出品の新しい順' => 'updated_at desc'
         ];
 
@@ -53,8 +52,7 @@ class ProductController extends Controller
         return view('products.index', compact('products', 'category', 'categories', 'major_category_names', 'total_count', 'sort', 'sorted'));
     }
 
-    public function favorite(Product $product)
-    {
+    public function favorite(Product $product) {
         $user = Auth::user(); // ログインユーザーを取得
 
         if ($user->hasFavorited($product)) { // ユーザーが商品をお気に入りに登録していたら
@@ -66,8 +64,7 @@ class ProductController extends Controller
         return redirect()->route('products.show', $product);
     }
 
-    public function show(Product $product)
-    {
+    public function show(Product $product) {
         $reviews = $product->reviews()->get(); // todo: $productからリレーションで紐付いているreviewsを取得する
 
         return view('products.show', compact('product', 'reviews')); // todo: viewファイルに$productと$reviewsを渡している

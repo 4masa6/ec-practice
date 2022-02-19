@@ -13,53 +13,46 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserController extends Controller
 {
-    public function mypage()
-    {
+    public function mypage() {
         $user = Auth::user();
 
         return view('users.mypage', compact('user'));
     }
 
-    public function show(User $user)
-    {
+    public function show(User $user) {
         //
     }
 
-    public function edit(User $user)
-    {
+    public function edit(User $user) {
         $user = Auth::user();
 
         return view('users.edit', compact('user'));
     }
 
-    public function update(Request $request, User $user)
-    {
+    public function update(Request $request, User $user) {
         $user = Auth::user();
 
-        $user->name = $request->input('name') ? $request->input('name') : $user->name;
-        $user->email = $request->input('email') ? $request->input('email') : $user->email;
+        $user->name        = $request->input('name') ? $request->input('name') : $user->name;
+        $user->email       = $request->input('email') ? $request->input('email') : $user->email;
         $user->postal_code = $request->input('postal_code') ? $request->input('postal_code') : $user->postal_code;
-        $user->address = $request->input('address') ? $request->input('address') : $user->address;
-        $user->phone = $request->input('phone') ? $request->input('phone') : $user->phone;
+        $user->address     = $request->input('address') ? $request->input('address') : $user->address;
+        $user->phone       = $request->input('phone') ? $request->input('phone') : $user->phone;
         $user->update();
 
         return redirect()->route('mypage');
     }
 
-    public function edit_address()
-    {
+    public function edit_address() {
         $user = Auth::user();
 
         return view('users.edit_address', compact('user'));
     }
 
-    public function edit_password()
-    {
+    public function edit_password() {
         return view('users.edit_password');
     }
 
-    public function update_password(Request $request)
-    {
+    public function update_password(Request $request) {
         $user = Auth::user();
 
         if ($request->input('password') == $request->input('password_confirmation')) { // 16_POSTされてきたパスワードと確認パスワードが同じなら更新
@@ -72,8 +65,7 @@ class UserController extends Controller
         return redirect()->route('mypage');
     }
 
-    public function favorite()
-    {
+    public function favorite() {
         $user = Auth::user();
 
         $favorites = $user->favorites(Product::class)->get(); // todo: 17_ユーザーがお気に入りした商品を取得（laravel-favoriteの機能）
@@ -81,8 +73,7 @@ class UserController extends Controller
         return view('users.favorite', compact('favorites'));
     }
 
-    public function destroy(Request $request)
-    {
+    public function destroy(Request $request) {
         $user = Auth::user();
 
         if ($user->deleted_flag) {
@@ -98,50 +89,48 @@ class UserController extends Controller
         return redirect('/');
     }
 
-    public function register_card(Request $request)
-    {
+    public function register_card(Request $request) {
         $user = Auth::user();
 
         $pay_jp_secret = env('PAYJP_SECRET_KEY');
         \Payjp\Payjp::setApiKey($pay_jp_secret);
 
-        $card = [];
+        $card  = [];
         $count = 0;
 
         if ($user->token != "") {
-            $result = \Payjp\Customer::retrieve($user->token)->cards->all(array("limit"=>1))->data[0];
-            $count = \Payjp\Customer::retrieve($user->token)->cards->all()->count;
+            $result = \Payjp\Customer::retrieve($user->token)->cards->all(array("limit" => 1))->data[0];
+            $count  = \Payjp\Customer::retrieve($user->token)->cards->all()->count;
 
             $card = [
-                'brand' => $result["brand"],
+                'brand'     => $result["brand"],
                 'exp_month' => $result["exp_month"],
-                'exp_year' => $result["exp_year"],
-                'last4' => $result["last4"]
+                'exp_year'  => $result["exp_year"],
+                'last4'     => $result["last4"]
             ];
         }
 
         return view('users.register_card', compact('card', 'count'));
     }
 
-    public function token(Request $request)
-    {
+    public function token(Request $request) {
         $pay_jp_secret = env('PAYJP_SECRET_KEY');
         \Payjp\Payjp::setApiKey($pay_jp_secret);
 
-        $user = Auth::user();
+        $user     = Auth::user();
         $customer = $user->token;
 
         if ($customer != "") {
-            $cu = \Payjp\Customer::retrieve($customer);
+            $cu          = \Payjp\Customer::retrieve($customer);
             $delete_card = $cu->cards->retrieve($cu->cards->data[0]["id"]);
             $delete_card->delete();
             $cu->cards->create(array(
-                "card" => request('payjp-token')
-            ));
+                                   "card" => request('payjp-token')
+                               ));
         } else {
-            $cu = \Payjp\Customer::create(array(
-                "card" => request('payjp-token')
-            ));
+            $cu          = \Payjp\Customer::create(array(
+                                                       "card" => request('payjp-token')
+                                                   ));
             $user->token = $cu->id;
             $user->update();
         }
@@ -152,12 +141,11 @@ class UserController extends Controller
     /*
      * 購入履歴の一覧を表示
      */
-    public function cart_history_index(Request $request)
-    {
-        $page = $request->page != null ? $request->page : 1;
-        $user_id = Auth::user()->id;
+    public function cart_history_index(Request $request) {
+        $page     = $request->page != null ? $request->page : 1;
+        $user_id  = Auth::user()->id;
         $billings = ShoppingCart::getCurrentUserOrders($user_id); // shoppingcartテーブルから現在のユーザーの購入情報を取得
-        $total = count($billings);
+        $total    = count($billings);
         $billings = new LengthAwarePaginator(array_slice($billings, ($page - 1) * 15, 15), $total, 15, $page, array('path' => $request->url())); // 15件でページングするための処理
         // [表示するコレクション] = new LengthAwarePaginator([表示するコレクション], [コレクションの大きさ], [1ページ当たりの表示数], [現在のページ番号], [オプション(ここでは"ページの遷移先パス")]);
 
@@ -167,8 +155,7 @@ class UserController extends Controller
     /*
      * 購入履歴の詳細表示
      */
-    public function cart_history_show(Request $request)
-    {
+    public function cart_history_show(Request $request) {
         $num = $request->num; // 注文の番号
 
         $user_id = Auth::user()->id;
@@ -187,12 +174,12 @@ class UserController extends Controller
             ->where('number', null)
             ->update(
                 [
-                    'code' => $cart_info->code,
-                    'number' => $num,
+                    'code'        => $cart_info->code,
+                    'number'      => $num,
                     'price_total' => $cart_info->price_total,
-                    'qty' => $cart_info->qty,
-                    'buy_flag' => $cart_info->buy_flag,
-                    'updated_at' => $cart_info->updated_at
+                    'qty'         => $cart_info->qty,
+                    'buy_flag'    => $cart_info->buy_flag,
+                    'updated_at'  => $cart_info->updated_at
                 ]
             );
 
